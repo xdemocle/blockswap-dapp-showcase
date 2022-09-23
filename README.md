@@ -52,6 +52,12 @@ Folders structure as below:
   +styles # minimal style with tailwindcss
 ```
 
+Contract available at: [https://etherscan.io/address/0x4ea67aebb61f7ff6e15e237c8b79d29c41f750fd#code](https://etherscan.io/address/0x4ea67aebb61f7ff6e15e237c8b79d29c41f750fd#code)
+
+### Application flow
+
+Once the user has connected his wallet to the DAPP, the App component will load trough an axios call to the subgraphs, the required tickers needed to populate our grid-tickers component. Once the GraphQL query has been executed and meanwhile items are populating the grid, each TickerCard component will run asyncronously an extra calls to the IPFS blockchain (with `use-claim-auction.tsx` hook) to retrieve the NFT item that will be shown inside the TickerCard as picture.
+
 ## Available Scripts
 
 In the project directory, you can run:
