@@ -33,6 +33,7 @@ The DAPP showcase handle state management trough standard React Context API. It 
 Folders structure as below:
 
 ```bash
++public # public and static folder
 -src
   +assets # all static assets
   +components # all components
