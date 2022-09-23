@@ -1,8 +1,10 @@
 import useGlobal from '../../hooks/use-global';
+import useWallet from '../../hooks/use-wallet';
 import Button from '../button';
 
 const LayoutHeader = () => {
   const { toggleShowWalletModal } = useGlobal();
+  const { isConnected } = useWallet();
 
   return (
     <header className="flex items-center py-3 bg-light-green">
@@ -14,7 +16,7 @@ const LayoutHeader = () => {
           className="font-semibold"
           onClick={() => toggleShowWalletModal()}
         >
-          Unlock Wallet
+          {isConnected ? 'My Account' : 'Unlock Wallet'}
         </Button>
       </div>
     </header>

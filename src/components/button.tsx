@@ -28,7 +28,7 @@ const Button = ({
 
   return (
     <button
-      className={`${cx} ${className} flex flex items-center text-lg text-lg cursor-pointer px-[16px] pt-[9px] pb-[7px] rounded`}
+      className={`${cx} ${className} flex flex items-center justify-center text-lg text-center text-lg cursor-pointer px-[16px] pt-[9px] pb-[7px] rounded`}
       onClick={onClick}
     >
       {prepend}

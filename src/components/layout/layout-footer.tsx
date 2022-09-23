@@ -6,7 +6,7 @@ const LayoutFooter = () => (
       <div className="text-md dark:text-white">
         <a
           href={`https://etherscan.io/address/${CONTRACT}`}
-          rel="nofollow"
+          rel="noreferrer"
           target="_blank"
         >
           Contract

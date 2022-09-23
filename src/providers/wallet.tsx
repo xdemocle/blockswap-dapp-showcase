@@ -1,53 +1,159 @@
-import {
-  useWeb3React,
-  Web3ReactHooks,
-  Web3ReactProvider
-} from '@web3-react/core';
-import { MetaMask } from '@web3-react/metamask';
-import { Network } from '@web3-react/network';
-import type { Connector } from '@web3-react/types';
-import { WalletConnect } from '@web3-react/walletconnect';
-import { ReactNode, useEffect } from 'react';
-import { hooks as metaMaskHooks, metaMask } from '../connectors/metamask';
-import { hooks as networkHooks, network } from '../connectors/network';
-import {
-  hooks as walletConnectHooks,
-  walletConnect
+import { createContext, ReactNode, useEffect, useState } from 'react';
+import Web3 from 'web3';
+import { provider } from 'web3-core';
+import metaMask, { enable as metaMaskEnable } from '../connectors/meta-mask';
+import walletConnect, {
+  enable as walletConnectEnable,
+  reset as walletConnectReset
 } from '../connectors/wallet-connect';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Web3Type = any;
 
 interface WalletProviderProps {
   children: ReactNode;
 }
 
-const getName = (connector: Connector) => {
-  if (connector instanceof MetaMask) return 'MetaMask';
-  if (connector instanceof WalletConnect) return 'WalletConnect';
-  if (connector instanceof Network) return 'Network';
-  return 'Unknown';
-};
+export interface Web3ContextProps {
+  web3: Web3Type;
+  chainId: number;
+  networkId: number;
+  connect: (connectorType: string) => Promise<void>;
+  disconnect: () => Promise<void>;
+  balance: number;
+  isFetching?: boolean;
+  isConnected: boolean;
+  address: string;
+}
 
-const connectors: [MetaMask | WalletConnect | Network, Web3ReactHooks][] = [
-  [metaMask, metaMaskHooks],
-  [walletConnect, walletConnectHooks],
-  [network, networkHooks]
-];
-
-const ChildDebug = () => {
-  const { connector } = useWeb3React();
-
-  useEffect(() => {
-    console.debug(`Priority Connector is: ${getName(connector)}`);
-  }, [connector]);
-
-  return null;
-};
+export const Web3Context = createContext<Web3ContextProps>(
+  {} as Web3ContextProps
+);
 
 const WalletProvider = ({ children }: WalletProviderProps) => {
+  const [web3, setWeb3] = useState<Web3Type>(undefined);
+  const [address, setAddress] = useState<string>('');
+  const [balance, setBalance] = useState<number>(0);
+  const [chainId, setChainId] = useState(56);
+  const [networkId, setNetworkId] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+
+  const initWeb3 = (provider: provider) => {
+    const library: Web3Type = new Web3(provider);
+
+    library.eth.extend({
+      methods: [
+        {
+          name: 'chainId',
+          call: 'eth_chainId',
+          outputFormatter: library.utils.hexToNumber
+        }
+      ]
+    });
+
+    return library;
+  };
+
+  const connect = async (provider: provider) => {
+    const web3 = initWeb3(provider);
+    setWeb3(web3);
+
+    setIsFetching(true);
+
+    const accounts = await web3.eth.getAccounts();
+    const networkId = await web3.eth.net.getId();
+    const chainId = await web3.eth.chainId();
+
+    const balance = await getBalance(accounts[0], web3);
+
+    setIsConnected(true);
+    setAddress(accounts[0]);
+    setChainId(chainId);
+    setNetworkId(networkId);
+    setBalance(balance);
+    setIsFetching(false);
+  };
+
+  const disconnect = async () => {
+    if (web3 && web3.currentProvider && web3.currentProvider.close) {
+      await web3.currentProvider.close();
+    }
+
+    setIsConnected(false);
+    setAddress('');
+    setNetworkId(0);
+    setIsFetching(false);
+  };
+
+  const getBalance = async (address: string, web3Param?: Web3Type) => {
+    let web3Local = web3;
+
+    if (!address || (!web3 && !web3Param)) {
+      return NaN;
+    }
+
+    if (web3Param) {
+      web3Local = web3Param;
+    }
+
+    const balanceBigNumber = await web3Local.eth.getBalance(address);
+
+    return web3Local.utils.fromWei(balanceBigNumber, 'ether');
+  };
+
+  const updateBalance = async (address: string) => {
+    const balance = await getBalance(address);
+    setBalance(balance);
+  };
+
+  const onClickConnectHandler = async (connectorType: string) => {
+    const connector = connectorType === 'metaMask' ? metaMask : walletConnect;
+
+    if (connectorType === 'metaMask') {
+      await metaMaskEnable();
+    } else {
+      try {
+        await walletConnectEnable();
+      } catch (error) {
+        walletConnectReset();
+      }
+    }
+
+    try {
+      await connect(connector as provider);
+    } catch (ex) {
+      console.debug('onClickConnectHandler', ex);
+    }
+
+    setProvider(connectorType);
+  };
+
+  const setProvider = (type: string) => {
+    window.localStorage.setItem('provider', type);
+  };
+
+  useEffect(() => {
+    updateBalance(address);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address]);
+
   return (
-    <Web3ReactProvider connectors={connectors}>
-      <ChildDebug />
+    <Web3Context.Provider
+      value={{
+        web3,
+        address,
+        balance,
+        networkId,
+        chainId,
+        isFetching,
+        isConnected,
+        connect: onClickConnectHandler,
+        disconnect
+      }}
+    >
       {children}
-    </Web3ReactProvider>
+    </Web3Context.Provider>
   );
 };
 

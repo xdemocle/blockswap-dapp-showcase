@@ -4,6 +4,8 @@ module.exports = {
     node: true
   },
   extends: [
+    'react-app',
+    'react-app/jest',
     'prettier',
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
@@ -23,6 +25,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['warn'],
     'prettier/prettier': 'error',
     'arrow-body-style': 'off',
-    'prefer-arrow-callback': 'off'
+    'prefer-arrow-callback': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off'
   }
 };
