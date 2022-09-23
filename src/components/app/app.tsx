@@ -33,6 +33,8 @@ const App = () => {
   useEffect(() => {
     if (isConnected) {
       getTickers();
+    } else {
+      setTickers([]);
     }
   }, [isConnected]);
 

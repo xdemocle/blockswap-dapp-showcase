@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Web3 from 'web3';
 import { getErcShortAddress } from '../helpers';
 import useClaimAuction from '../hooks/use-claim-auction';
 
@@ -68,9 +69,10 @@ const TickerCard = ({ ticker }: TickerCardProps) => {
         <div className="mb-2 whitespace-nowrap">
           Winning bid:{' '}
           <span className="text-lightest-gray font-medium">
-            {parseFloat(String(Number(ticker.shbBid) / 1000000000000000000))
+            {parseFloat(String(Web3.utils.fromWei(ticker.shbBid)))
               .toFixed(2)
-              .replace(/\.0+$/, '')}
+              .replace(/\.0+$/, '')}{' '}
+            SHB
           </span>
         </div>
 
