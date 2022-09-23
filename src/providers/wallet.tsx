@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { createContext, ReactNode, useEffect, useState } from 'react';
 import Web3 from 'web3';
 import { provider } from 'web3-core';
@@ -10,12 +11,18 @@ import walletConnect, {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Web3Type = any;
 
+export type ProviderType = provider & {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  on: (eventName: string, cb: (param: any, param2?: any) => void) => void;
+};
+
 interface WalletProviderProps {
   children: ReactNode;
 }
 
 export interface Web3ContextProps {
   web3: Web3Type;
+  provider?: ProviderType;
   chainId: number;
   networkId: number;
   connect: (connectorType: string) => Promise<void>;
@@ -32,6 +39,7 @@ export const Web3Context = createContext<Web3ContextProps>(
 
 const WalletProvider = ({ children }: WalletProviderProps) => {
   const [web3, setWeb3] = useState<Web3Type>(undefined);
+  const [currentProvider, setCurrentProvider] = useState<ProviderType>();
   const [address, setAddress] = useState<string>('');
   const [balance, setBalance] = useState<number>(0);
   const [chainId, setChainId] = useState(56);
@@ -39,7 +47,8 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
   const [isFetching, setIsFetching] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
 
-  const initWeb3 = (provider: provider) => {
+  const initWeb3 = (provider: ProviderType) => {
+    setCurrentProvider(provider);
     const library: Web3Type = new Web3(provider);
 
     library.eth.extend({
@@ -55,11 +64,12 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
     return library;
   };
 
-  const connect = async (provider: provider) => {
+  const connect = async (provider: ProviderType) => {
     const web3 = initWeb3(provider);
     setWeb3(web3);
 
     setIsFetching(true);
+    setListeners();
 
     const accounts = await web3.eth.getAccounts();
     const networkId = await web3.eth.net.getId();
@@ -76,10 +86,6 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
   };
 
   const disconnect = async () => {
-    if (web3 && web3.currentProvider && web3.currentProvider.close) {
-      await web3.currentProvider.close();
-    }
-
     setIsConnected(false);
     setAddress('');
     setNetworkId(0);
@@ -121,16 +127,34 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
     }
 
     try {
-      await connect(connector as provider);
+      await connect(connector as ProviderType);
     } catch (ex) {
       console.debug('onClickConnectHandler', ex);
     }
-
-    setProvider(connectorType);
   };
 
-  const setProvider = (type: string) => {
-    window.localStorage.setItem('provider', type);
+  const setListeners = () => {
+    // Subscribe to accounts change
+    currentProvider?.on('accountsChanged', (accounts: string[]) => {
+      console.debug('accountsChanged', accounts);
+
+      // Intercept manual disconnection of metamask
+      if (!accounts.length) {
+        disconnect();
+      }
+    });
+
+    // Subscribe to chainId change
+    currentProvider?.on('chainChanged', (chainId: number) => {
+      console.debug('chainChanged', chainId);
+      // We recommend reloading the page, unless you must do otherwise
+      window.location.reload();
+    });
+
+    // Subscribe to session disconnection
+    currentProvider?.on('disconnect', (code: number, reason: string) => {
+      console.debug('disconnect', code, reason);
+    });
   };
 
   useEffect(() => {
@@ -142,6 +166,7 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
     <Web3Context.Provider
       value={{
         web3,
+        provider: currentProvider,
         address,
         balance,
         networkId,

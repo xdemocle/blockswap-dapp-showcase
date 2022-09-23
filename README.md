@@ -4,6 +4,53 @@ Blockswap Dapp Showcase Metamask, WallletConnect, NFT list.
 
 _This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app)._
 
+## Quickstart
+
+Create in the root of the project a file called `.env.local` with content as example below:
+
+```bash
+REACT_APP_INFURA_KEY=<your infura key>
+REACT_APP_CONTRACT=0x4ea67aebb61f7ff6e15e237c8b79d29c41f750fd
+REACT_APP_SUBGRAPHS=https://api.thegraph.com/subgraphs/name/vince0656/brand-central
+```
+
+First command to install dependencies:
+
+```bash
+npm install
+```
+
+Lunch command below to start local development:
+
+```bash
+npm start
+```
+
+## Architecture
+
+The DAPP showcase handle state management trough standard React Context API. It doesn't use any third party libraries for handling wallet connections and Web3.js instantiation. A simple React Custom Hook (mentioned below `use-claim-auction.tsx`), provide connection to the "auction" contract using the web3 instance previously created underneath during user's wallet connection attempt.
+
+Folders structure as below:
+
+```bash
+-src
+  +assets # all static assets
+  +components # all components
+  -connectors # all wallet connector adapters
+    meta-mask.ts
+    wallet-connect.ts
+  +constants # all web app constants and static json abi
+  +helpers # helper functions collection
+  -hooks # hooks collection
+    use-claim-auction.tsx # react hook for the main auction contract
+    use-global.tsx # global actions
+    use-wallet.tsx # react web3 and wallet hook
+  -providers # all providers
+    global.tsx # global provider for generic actions
+    wallet.tsx # web3 and wallet provider
+  +styles # minimal style with tailwindcss
+```
+
 ## Available Scripts
 
 In the project directory, you can run:
