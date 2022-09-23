@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getErcShortAddress } from '../helpers';
 import useClaimAuction from '../hooks/use-claim-auction';
-import useWallet from '../hooks/use-wallet';
 
 export type TickerType = {
   id: string;
