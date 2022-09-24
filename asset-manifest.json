@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/blockswap-dapp-showcase/static/css/main.23910c3b.css",
+    "main.js": "/blockswap-dapp-showcase/static/js/main.123e7988.js",
+    "static/js/787.5aa93ea0.chunk.js": "/blockswap-dapp-showcase/static/js/787.5aa93ea0.chunk.js",
+    "static/media/metamask-icon.svg": "/blockswap-dapp-showcase/static/media/metamask-icon.f8f878c1c793edb031054b4abbba88ab.svg",
+    "static/media/walletconnect-icon.svg": "/blockswap-dapp-showcase/static/media/walletconnect-icon.2b2109af9e99276997ed6b5886488d90.svg",
+    "index.html": "/blockswap-dapp-showcase/index.html",
+    "main.23910c3b.css.map": "/blockswap-dapp-showcase/static/css/main.23910c3b.css.map",
+    "main.123e7988.js.map": "/blockswap-dapp-showcase/static/js/main.123e7988.js.map",
+    "787.5aa93ea0.chunk.js.map": "/blockswap-dapp-showcase/static/js/787.5aa93ea0.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.23910c3b.css",
+    "static/js/main.123e7988.js"
+  ]
+}
