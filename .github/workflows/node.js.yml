@@ -5,12 +5,17 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
 
 permissions:
   contents: write
+
+env:
+  REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
+  REACT_APP_CONTRACT: ${{ secrets.REACT_APP_CONTRACT }}
+  REACT_APP_SUBGRAPHS: ${{ secrets.REACT_APP_SUBGRAPHS }}
 
 jobs:
   build:
@@ -30,7 +35,7 @@ jobs:
       - run: npm ci
       - run: npm run build --if-present
       - run: npm test
-        
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.4.0
         with:
