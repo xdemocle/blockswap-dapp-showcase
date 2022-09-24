@@ -13,9 +13,9 @@ permissions:
   contents: write
 
 env:
-  REACT_APP_INFURA_KEY: ${{ secrets.REACT_APP_INFURA_KEY }}
-  REACT_APP_CONTRACT: ${{ secrets.REACT_APP_CONTRACT }}
-  REACT_APP_SUBGRAPHS: ${{ secrets.REACT_APP_SUBGRAPHS }}
+  REACT_APP_INFURA_KEY: 'REACT_APP_INFURA_KEY'
+  REACT_APP_CONTRACT: '0x4ea67aebb61f7ff6e15e237c8b79d29c41f750fd'
+  REACT_APP_SUBGRAPHS: 'https://api.thegraph.com/subgraphs/name/vince0656/brand-central'
 
 jobs:
   build:
